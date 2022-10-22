@@ -13,7 +13,6 @@ router.get('/home', common.getHome);
 router.get('/aboutus', common.getAboutUs);
 router.get('/terms-and-condition', common.getTermAndCondition);
 router.get('/contactus', common.contactus);
-
 router.get('/findOrderExpireNotificationTemp', order.findOrderExpireNotificationTemp);
 router.get('/userorders/:id', order.userorders);
 router.get('/userwallet/:id', order.userwallet);
@@ -61,6 +60,7 @@ router.get('/product/:route', order.getProduct);
 router.post('/order/availability', order.checkAvailability);
 router.post('/order/bookedtime', order.returnBookedTimes);
 router.post('/user/update', user.userUpdate);
+router.post('/subscribe/email', common.subscribe);
 /** For auth enabled */
 router.use(authMiddware);
 router.post('/reset/password/admin', common.resetPasswordAdmin);

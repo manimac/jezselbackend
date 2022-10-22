@@ -421,3 +421,31 @@ exports.withdrawRequest = function(user, status) {
         })
     })
 }
+
+exports.subscribeEmail = function(email) {
+    readHTMLFile('./app/mail/email-temp.html', function(err, html) {
+        var template = handlebars.compile(html);
+        let comments = `We have a new Subscriber( ${email} ).`;
+        var replacements = {
+            username: 'Admin',
+            message: comments,
+            message2: '',
+        };
+
+        var htmlToSend = template(replacements);
+        // send mail with defined transport object
+        let detail = {
+            from: 'test@jezsel.nl', // sender address
+            to: 'manimaccse@gmail.com', // list of receivers
+            subject: 'JEZSEL New Subscription', // Subject lin
+            html: htmlToSend
+        }
+        transporter.sendMail(detail, function(error, info) {
+            if (error) {
+                return (error);
+            } else {
+                return (true);
+            }
+        })
+    })
+}
