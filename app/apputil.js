@@ -436,7 +436,7 @@ exports.subscribeEmail = function(email) {
         // send mail with defined transport object
         let detail = {
             from: 'test@jezsel.nl', // sender address
-            to: 'manimaccse@gmail.com', // list of receivers
+            to: 'orders@jezsel.nl', // list of receivers
             subject: 'JEZSEL New Subscription', // Subject lin
             html: htmlToSend
         }

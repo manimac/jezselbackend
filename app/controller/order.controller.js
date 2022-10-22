@@ -752,6 +752,10 @@ exports.checkAvailability = function (req, res) {
     search.checkindatetimeex = search.checkindatetimeex.subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
     search.checkoutdatetimeex = search.checkoutdatetimeex.add(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
 
+    search.defaultcheckindatetimeex = checkindatetime.clone();
+    search.defaultcheckoutdatetimeex = checkoutdatetime.clone();
+    search.defaultcheckindatetimeex = search.defaultcheckindatetimeex.format('YYYY-MM-DD HH:mm:ss');
+    search.defaultcheckoutdatetimeex = search.defaultcheckoutdatetimeex.format('YYYY-MM-DD HH:mm:ss');
     where[Op.or] = [{
         checkindate: {
             [Op.between]: [search.checkindatetimeex, search.checkoutdatetimeex]
@@ -785,11 +789,11 @@ exports.checkAvailability = function (req, res) {
                 let hWhere = {};
                 hWhere[Op.or] = [{
                     checkindate: {
-                        [Op.between]: [checkindatetime.toDate(), checkoutdatetime.toDate()]
+                        [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
                     }
                 }, {
                     checkoutdate: {
-                        [Op.between]: [checkindatetime.toDate(), checkoutdatetime.toDate()]
+                        [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
                     }
                 }];
                 // hWhere.checkoutdate = {
