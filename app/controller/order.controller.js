@@ -31,8 +31,8 @@ var storage = multer.diskStorage({
     }
 })
 
-/** Products */
-exports.products = function (req, res) {
+
+exports.oldproducts = function (req, res) {
     var result = { count: 0, data: [] };
     var offset = req.body.offset || 0;
     var limit = req.body.limit || 1000000;
@@ -247,6 +247,228 @@ exports.products = function (req, res) {
     }
 
 }
+
+
+/** Products */
+
+exports.products = function (req, res) {
+    var result = { count: 0, data: [] };
+    var offset = req.body.offset || 0;
+    var limit = req.body.limit || 1000000;
+    //search 
+    var bookedVehicle = [];
+    const search = req.body.search || {};
+    if (search && search.checkindate && search.checkintime && search.checkoutdate && search.checkouttime) {
+        let where = {};
+        search.checkindatetime = moment(search.checkindate + ' ' + search.checkintime, 'DD-MM-YYYY HH:mm');
+        search.checkoutdatetime = moment(search.checkoutdate + ' ' + search.checkouttime, 'DD-MM-YYYY HH:mm');
+
+        let checkindatetimeex = search.checkindatetime.clone();
+        let checkoutdatetimeex = search.checkoutdatetime.clone();
+        search.checkindatetimeex = checkindatetimeex.subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+        search.checkoutdatetimeex = checkoutdatetimeex.add(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+        where[Op.or] = [{
+            checkindate: {
+                [Op.between]: [search.checkindatetimeex, search.checkoutdatetimeex]
+            }
+        }, {
+            checkoutdate: {
+                [Op.between]: [search.checkindatetimeex, search.checkoutdatetimeex]
+            }
+        }]
+
+        where.status = 1;
+        where.type = req.body.type;
+        where.filterlocation_id = search.locationid;
+        if (appUtil.getUser(req.headers.authorization).id) {
+            where.user_id = {
+                [Op.not]: appUtil.getUser(req.headers.authorization).id
+            }
+        }
+
+        OrderHistoryModel.findAll({ where: where }).then((resp) => {
+            bookedVehicle = resp.map((x, i) => {
+                return x.product_id;
+            });
+            if (appUtil.getUser(req.headers.authorization).id) {
+                let userWhere = {};
+                userWhere.status = 1;
+                userWhere.type = req.body.type;
+                userWhere.filterlocation_id = search.locationid;
+                userWhere.user_id = appUtil.getUser(req.headers.authorization).id;
+
+                search.checkindatetime = moment(search.checkindate + ' ' + search.checkintime, 'DD-MM-YYYY HH:mm');
+                search.checkoutdatetime = moment(search.checkoutdate + ' ' + search.checkouttime, 'DD-MM-YYYY HH:mm');
+
+                let checkindatetimeex = search.checkindatetime.clone();
+                let checkoutdatetimeex = search.checkoutdatetime.clone();
+                search.checkindatetimeex = checkindatetimeex.format('YYYY-MM-DD HH:mm:ss');
+                search.checkoutdatetimeex = checkoutdatetimeex.format('YYYY-MM-DD HH:mm:ss');
+                userWhere[Op.or] = [{
+                    checkindate: {
+                        [Op.between]: [search.checkindatetimeex, search.checkoutdatetimeex]
+                    }
+                }, {
+                    checkoutdate: {
+                        [Op.between]: [search.checkindatetimeex, search.checkoutdatetimeex]
+                    }
+                }]
+
+                OrderHistoryModel.findAll({ where: userWhere }).then((resp) => {
+                    let userBookedVehicle = resp.map((x, i) => {
+                        return x.product_id;
+                    });
+                    bookedVehicle = bookedVehicle.concat(userBookedVehicle.filter(bo => bookedVehicle.every(ao => ao != bo)));
+                    content();
+                })
+            }
+            else {
+                content();
+            }
+        })
+    }
+    else {
+        content();
+    }
+
+    function content() {
+        let where = {};
+        if (req.body.status) {
+            where.status = req.body.status;
+        }
+        if (req.body.type) {
+            where.type = req.body.type;
+        }
+        if (search.locationid) {
+            where.location_id = search.locationid;
+        }
+        let filter = [];
+        if (req.body.vehicle) {
+            filter.push({
+                'vehicle': {
+                    [Op.in]: req.body.vehicle.split(',')
+                }
+            })
+        }
+        if (req.body.fuel) {
+            filter.push({
+                'fuel': {
+                    [Op.in]: req.body.fuel.split(',')
+                }
+            })
+        }
+        if (req.body.transmission) {
+            filter.push({
+                'transmission': {
+                    [Op.in]: req.body.transmission.split(',')
+                }
+            })
+        }
+        if (req.body.parkingspace) {
+            filter.push({
+                'parkingspace': {
+                    [Op.in]: req.body.parkingspace.split(',')
+                }
+            })
+        }
+        if (req.body.storagespace) {
+            filter.push({
+                'storagespace': {
+                    [Op.in]: req.body.storagespace.split(',')
+                }
+            })
+        }
+        if (req.body.beroep) {
+            filter.push({
+                'beroep': {
+                    [Op.in]: req.body.beroep.split(',')
+                }
+            })
+        }
+        if (req.body.leeftijd) {
+            filter.push({
+                'leeftijd': {
+                    [Op.in]: req.body.leeftijd.split(',')
+                }
+            })
+        }
+        if (req.body.ervaring) {
+            filter.push({
+                'ervaring': {
+                    [Op.in]: req.body.ervaring.split(',')
+                }
+            })
+        }
+        if (req.body.nationality) {
+            filter.push({
+                'nationality': {
+                    [Op.in]: req.body.nationality.split(',')
+                }
+            })
+        }
+        if (req.body.voertuig) {
+            filter.push({
+                'voertuig': {
+                    [Op.in]: req.body.voertuig.split(',')
+                }
+            })
+        }
+
+        if (req.body.fromdate) {
+            const from = moment(req.body.fromdate).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+            const to = req.body.todate && moment(req.body.todate).endOf('day').format('YYYY-MM-DD HH:mm:ss') || moment().endOf('day').format('YYYY-MM-DD HH:mm:ss');
+            where.createdAt = {
+                [Op.between]: [new Date(from), new Date(to)]
+            }
+        }
+        if (req.body.showindex) {
+            where.showinindex = 1;
+        }
+        if (filter.length) {
+            where[Op.and] = filter
+        }
+
+        ProductModel.findAndCountAll({
+            where
+        }).then((output) => {
+            result.count = output.count;
+            ProductModel.findAll({
+                where,
+                include: [{
+                    model: ProductImageModel,
+                    attributes: ['id', 'path', 'image']
+                }, {
+                    model: ExtraModel,
+                    attributes: ['id', 'type', 'description', 'price', 'isGroup']
+                }],
+                order: [
+                    ['createdAt', 'DESC']
+                ],
+                offset: offset,
+                limit: limit
+            }).then((registered) => {
+                let revised = registered.map((x, i) => {
+                    let temp = x && x.toJSON();
+                    temp.sno = offset + (i + 1);
+                    if (bookedVehicle.indexOf(temp.id) >= 0) {
+                        temp.disabled = true;
+                    }
+                    return temp;
+                })
+                revised = revised.filter(element => (!element.disabled))
+                result.data = revised;
+                result.count = revised.length;
+                res.send(result);
+            }).catch((err) => {
+                res.status(500).send(err)
+            })
+        }).catch((err) => {
+            res.status(500).send(err)
+        })
+    }
+
+}
+
 exports.createProduct = function (req, res) {
     // var upload = multer({ storage: storage }).single('thumbnail');
     var upload = multer({ storage: storage }).fields([{
@@ -682,6 +904,7 @@ exports.makeOrder = function (req, res) {
             orderhistory.name = product.name;
             orderhistory.price = product.priceperhr;
             orderhistory.advancepaid = product.advancePayment;
+            orderhistory.user_id = USER.id || null;
             if (product.search) {
                 const search = product.search;
                 orderhistory.filterlocation_id = search.locationid;
@@ -693,6 +916,12 @@ exports.makeOrder = function (req, res) {
                 orderhistory.checkouttime = moment(search.checkouttime, 'HH:mm').format('HH:mm');
                 // orderhistory.maxcanceldate = moment(product.maxcanceldate + ' ' + search.checkintime, 'DD-MM-YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss');
                 orderhistory.maxcanceldate = moment(product.maxcanceldate, 'DD-MM-YYYY').format('YYYY-MM-DD') + ' ' + moment(search.checkintime, 'HH:mm').format('HH:mm:ss');
+
+
+
+                // let maxCheckoutDate = orderhistory.checkoutdate;
+                orderhistory.maxcheckoutdateutc = orderhistory.checkoutdate;
+                orderhistory.maxcheckoutdateutc = moment(orderhistory.maxcheckoutdateutc).utc().format('YYYY-MM-DD') + ' ' + moment(orderhistory.maxcheckoutdateutc).utc().format('HH:mm:ss');
             }
             delete orderhistory.id;
             OrderHistoryModel.create(orderhistory).then((history) => {
@@ -856,11 +1085,11 @@ exports.checkAvailability = function (req, res) {
             let hWhere = {};
             hWhere[Op.or] = [{
                 checkindate: {
-                    [Op.between]: [checkindatetime.toDate(), checkoutdatetime.toDate()]
+                    [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
                 }
             }, {
                 checkoutdate: {
-                    [Op.between]: [checkindatetime.toDate(), checkoutdatetime.toDate()]
+                    [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
                 }
             }];
             hWhere.status = 1;
@@ -879,6 +1108,72 @@ exports.checkAvailability = function (req, res) {
             });
         }
     })
+
+}
+
+
+exports.checkAvailabilityProducts = function (req, res) {
+
+    // var bookedVehicle = [];
+    const search = req.body;
+    const checkindatetime = moment(search.checkindate + ' ' + search.checkintime, 'DD-MM-YYYY HH:mm');
+    const checkoutdatetime = moment(search.checkoutdate + ' ' + search.checkouttime, 'DD-MM-YYYY HH:mm');
+
+
+    search.defaultcheckindatetimeex = checkindatetime.clone();
+    search.defaultcheckoutdatetimeex = checkoutdatetime.clone();
+    search.defaultcheckindatetimeex = search.defaultcheckindatetimeex.subtract(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+    search.defaultcheckoutdatetimeex = search.defaultcheckoutdatetimeex.add(60, 'minutes').format('YYYY-MM-DD HH:mm:ss');
+
+    // search.defaultcheckindatetimeex = search.defaultcheckindatetimeex.format('YYYY-MM-DD HH:mm:ss');
+    // search.defaultcheckoutdatetimeex = search.defaultcheckoutdatetimeex.format('YYYY-MM-DD HH:mm:ss');
+
+    let hWhere = {};
+    hWhere[Op.or] = [{
+        checkindate: {
+            [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
+        }
+    }, {
+        checkoutdate: {
+            [Op.between]: [search.defaultcheckindatetimeex, search.defaultcheckoutdatetimeex]
+        }
+    }];
+    hWhere.status = 1;
+    hWhere.type = req.body.type;
+    hWhere.product_id = search.product_id;
+    hWhere.filterlocation_id = search.locationid;
+    let user_id = appUtil.getUser(req.headers.authorization).id || null;
+    OrderHistoryModel.findOne({
+        where: hWhere,
+        include: [{
+            model: OrderModel,
+            where: {
+                user_id: user_id
+            },
+            required: true
+        }],
+        order: [
+            ['updatedAt', 'DESC']
+        ]
+    }).then((sResp) => {
+        console.log('-----------------------------------');
+        if (sResp)
+            res.send({ booked: true });
+        else {
+            /** Check maintenance */
+            hWhere.type = 'maintenance';
+            OrderHistoryModel.findOne({
+                where: hWhere,
+            }).then((mResp) => {
+                if (mResp) {
+                    res.send({ booked: true });
+                } else {
+                    res.send({ booked: false });
+                }
+            });
+
+        }
+    });
 
 }
 
@@ -1007,7 +1302,7 @@ exports.myWallet = function (req, res) {
     } else {
         whereObj.user_id = user_id;
     }
-    
+
     OrderModel.findAll({
         where: whereObj,
         include: [OrderHistoryModel],
@@ -1193,17 +1488,17 @@ exports.findOrderExpireNotification = function (req, res) {
     OrderModel.findAll({
         where: where,
         include: [UserModel]
-    }).then(function (resp) {        
+    }).then(function (resp) {
         async.eachSeries(resp, function (order, oCallback) {
             if (order.User) {
                 appUtil.expireNotification(order);
                 OrderModel.findByPk(order.id).then(function (resp1) {
-                    resp1.update({mail:1}).then(function (result) {
-                        
+                    resp1.update({ mail: 1 }).then(function (result) {
+
                     });
                 })
             }
-            
+
             oCallback();
         }, (err) => {
             return true;
@@ -1241,17 +1536,17 @@ exports.findOrderExpireNotificationTemp = function (req, res) {
     OrderModel.findAll({
         where: where,
         include: [UserModel]
-    }).then(function (resp) {    
+    }).then(function (resp) {
         // async.eachSeries(resp, function (order, oCallback) {
         //     if (order.User) {
         //         appUtil.expireNotification(order);
         //         OrderModel.findByPk(order.id).then(function (resp1) {
         //             resp1.update({mail:1}).then(function (result) {
-                        
+
         //             });
         //         })
         //     }
-            
+
         //     oCallback();
         // }, (err) => {
         //     return true;

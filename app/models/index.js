@@ -81,7 +81,7 @@ db.orderhistory.belongsTo(db.product, { foreignKey: 'product_id', targetKey: 'id
 db.orderhistory.belongsTo(db.extra, { foreignKey: 'extra_id', targetKey: 'id' })
 db.orderhistory.belongsTo(db.filterlocation, { foreignKey: 'filterlocation_id', targetKey: 'id' })
 db.orderhistory.belongsTo(db.order, { foreignKey: 'order_id', targetKey: 'id' })
-
+db.orderhistory.belongsTo(db.users, { foreignKey: 'user_id', targetKey: 'id' });
 // db.transportregister.belongsTo(db.users, { foreignKey: 'created_by', targetKey: 'id' });
 // db.transportregister.belongsTo(db.users, { foreignKey: 'updated_by', targetKey: 'id' });
 

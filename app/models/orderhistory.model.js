@@ -13,7 +13,9 @@ const OrderhistoryModel = (sequelize, Sequelize) => {
         status: { type: Sequelize.INTEGER, defaultValue: 1 },
         maxcanceldate: { type: 'Timestamp', allowNull: true },
         canceleddate: { type: Sequelize.DATE, allowNull: true },
-        cancelationfee: { type: Sequelize.STRING, allowNull: true }
+        cancelationfee: { type: Sequelize.STRING, allowNull: true },
+        maxcheckoutdateutc: { type: Sequelize.DATE, allowNull: true },
+        mail: { type: Sequelize.BOOLEAN, allowNull: true }
     })
 
     return Orderhistory
