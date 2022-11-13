@@ -83,20 +83,20 @@ var readHTMLFile = function(path, callback) {
 // });
 
 var transporter = nodemailer.createTransport({
-    // host: 'smtp.transip.email',
-    // port: 587,
-    // auth: {
-    //     user: "support1@jezsel.nl",
-    //     pass: "Luna@2704"
-    // },
-    // tls: { rejectUnauthorized: false },
-    host: 'uranium.da.hostns.io',
+    host: 'smtp.transip.email',
     port: 587,
     auth: {
-        user: "test@jezsel.nl",
-        pass: "test@123"
+        user: "support@jezsel.nl",
+        pass: "Jez28Sel"
     },
     tls: { rejectUnauthorized: false },
+    // host: 'uranium.da.hostns.io',
+    // port: 587,
+    // auth: {
+    //     user: "test@jezsel.nl",
+    //     pass: "test@123"
+    // },
+    // tls: { rejectUnauthorized: false },
 });
 
 exports.getUser = function(token) {
@@ -140,7 +140,7 @@ async function sendVfMail(user, password = null) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: 'JEZSEL User Verification', // Subject lin
             html: htmlToSend
@@ -175,7 +175,7 @@ async function sendOrdConfirmation(order, type) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: (type && type == 'wallet') ? 'JEZSEL - Bevestiging opwaardering' : 'JEZSEL Bevestiging boeking', // Subject lin
             html: htmlToSend
@@ -203,7 +203,7 @@ async function sendOrdConfirmationAdmin(order, type) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: ['orders@jezsel.nl'], // list of receivers
             subject: (type && type == 'wallet') ? 'JEZSEL - Bevestiging opwaardering' : 'JEZSEL New Order', // Subject lin
             html: htmlToSend
@@ -249,7 +249,7 @@ async function main(user) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: 'JEZSEL Betaallink', // Subject lin
             html: htmlToSend
@@ -320,7 +320,7 @@ exports.resetedPassword = function(user, password) {
 
             var htmlToSend = template(replacements);
             let detail = {
-                from: 'test@jezsel.nl', // sender address
+                from: 'support@jezsel.nl', // sender address
                 to: user.email, // list of receivers
                 subject: 'Your JEZSEL Login Password Reseted', // Subject li
                 html: htmlToSend
@@ -351,7 +351,7 @@ exports.expireNotification = function(order) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: 'JEZSEL Nog één uur - Herinnering', // Subject lin
             html: htmlToSend
@@ -379,7 +379,7 @@ exports.cancelNotification = function(user, order) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: 'JEZSEL Annulering', // Subject lin
             html: htmlToSend
@@ -407,7 +407,7 @@ exports.withdrawRequest = function(user, status) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
             subject: 'JEZSEL Withdrawal Status', // Subject lin
             html: htmlToSend
@@ -435,7 +435,7 @@ exports.subscribeEmail = function(email) {
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
-            from: 'test@jezsel.nl', // sender address
+            from: 'support@jezsel.nl', // sender address
             to: 'orders@jezsel.nl', // list of receivers
             subject: 'JEZSEL New Subscription', // Subject lin
             html: htmlToSend
