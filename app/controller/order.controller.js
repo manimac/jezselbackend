@@ -920,8 +920,8 @@ exports.makeOrder = function (req, res) {
 
 
                 // let maxCheckoutDate = orderhistory.checkoutdate;
-                orderhistory.maxcheckoutdateutc = orderhistory.checkoutdate;
-                orderhistory.maxcheckoutdateutc = moment(orderhistory.maxcheckoutdateutc).utc().format('YYYY-MM-DD') + ' ' + moment(orderhistory.maxcheckoutdateutc).utc().format('HH:mm:ss');
+                orderhistory.maxcheckoutdateutc = search.maxcheckoutdateutc;
+                // orderhistory.maxcheckoutdateutc = moment(orderhistory.maxcheckoutdateutc).utc().format('YYYY-MM-DD') + ' ' + moment(orderhistory.maxcheckoutdateutc).utc().format('HH:mm:ss');
             }
             delete orderhistory.id;
             OrderHistoryModel.create(orderhistory).then((history) => {
@@ -1503,7 +1503,7 @@ exports.findOrderExpireNotification = function (req, res) {
     });
 }
 
-exports.findOrderExpireNotificationTemp = function (req, res) {
+exports.findOrderExpireNotificationTemp = function (req, res) {    
     let where = {};
     where.maxcheckoutdateutc = {
         [Op.lt]: Sequelize.literal("DATE_ADD(NOW(), INTERVAL 1 HOUR)"),
@@ -1515,21 +1515,21 @@ exports.findOrderExpireNotificationTemp = function (req, res) {
         where: where,
         include: [UserModel]
     }).then(function (resp) {
-        async.eachSeries(resp, function (order, oCallback) {
-            if (order.User) {
-                appUtil.expireNotification(order);
-                OrderHistoryModel.findByPk(order.id).then(function (resp1) {
-                    resp1.update({ mail: 1 }).then(function (result) {
+        // async.eachSeries(resp, function (order, oCallback) {
+        //     if (order.User) {
+        //         appUtil.expireNotification(order);
+        //         OrderHistoryModel.findByPk(order.id).then(function (resp1) {
+        //             resp1.update({ mail: 1 }).then(function (result) {
 
-                    });
-                })
-            }
+        //             });
+        //         })
+        //     }
 
-            oCallback();
-        }, (err) => {
-            // return true;
-            res.send(err);
-        })
+        //     oCallback();
+        // }, (err) => {
+        //     // return true;
+        //     res.send(err);
+        // })
         res.send(resp);
     });
 }
