@@ -128,7 +128,9 @@ async function sendVfMail(user, password = null) {
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
         let verifyUrl = `${process.env.baseUrl}user/verification/${user.id}/${user.verification_token}`;
-        let comments = `Click the following link to verify your JEZSEL account ${verifyUrl}`;
+        // let comments = `Click the following link to verify your JEZSEL account ${verifyUrl}`;
+        let comments = `Welkom bij Jezsel. U heeft succesvol een account bij Jezsel.nl aangemaakt. Klikt u op de link om uw e-mailadres te bevestigen.</p><p>Mocht u geen account hebben aangemaakt, stuur dan een e-mail naar info@jezsel.nl</p><p>
+        ${verifyUrl}</p><p>Wij wensen u nog veel plezier met de diensten van Jezsel.`;
         var replacements = {
             username: user.firstname + ' ' + user.lastname,
             message: comments,
@@ -166,7 +168,7 @@ async function sendOrdConfirmation(order, type) {
     let user = order && order.user || {};
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
-        let comments = `Thank you for choosing us. We value your business. Our’s organization will probably give great items and mindful client assistance to esteemed clients like you. We would like to meet and surpass your desires!`;
+        let comments = `Bedankt voor uw bezoek aan Jezsel.nl. Wij hebben uw aanvraag in goede orde ontvangen. Uw ordernummer is ` + order.id + ".</p><p>" + `Heeft u nog vragen naar aanleiding van dit bericht. Dan kunt u contact met ons opnemen per e-mail. Vergeet niet uw ordernummer te vermelden.</p><p>Wij wensen u alvast een fijne ervaring met onze diensten.`;
         var replacements = {
             username: user.firstname,
             message: comments,
@@ -240,7 +242,8 @@ async function main(user) {
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
         let verifyUrl = `${process.env.appUrl}payment?oud=${user.data}`;
-        let comments = `Click the following link to process the payment ${verifyUrl}`;
+        // let comments = `Click the following link to process the payment ${verifyUrl}`;
+        let comments = `Bedankt voor uw bezoek aan onze website. U heeft ervoor gekozen om via een betalingslink te betalen. Via de onderstaande link kunt u betalen.</p><p>${verifyUrl}</p>Mocht u problemen ondervinden met de betalingslink, kunt u contact met ons opnemen.</p><p>Heeft u nog vragen naar aanleiding van dit bericht, kunt u ook contact met ons opnemen.`;
         var replacements = {
             username: 'User',
             message: comments,
@@ -311,9 +314,14 @@ exports.resetedPassword = function(user, password) {
     return new Promise(async function(resolve, reject) {
         readHTMLFile('./app/mail/email-temp.html', function(err, html) {
             var template = handlebars.compile(html);
+            let comments = `U heeft aangegeven uw wachtwoord te zijn vergeten van uw Jezsel account. U heeft succesvol uw wachtwoord gereset. Uw huidige wachtwoord is nu ${password}.</p><p>
+            Mocht u geen verzoek hebben ingediend om uw wachtwoord te veranderen? Stuur dan een e-mail naar info@jezsel.nl.
+            `;
+            
+                // message: `You have successfully reset the password for your JEZSEL account, Your current password is ${password}`,
             var replacements = {
                 username: user.firstname + ' ' + user.lastname,
-                message: `You have successfully reset the password for your JEZSEL account, Your current password is ${password}`,
+                message: comments,
                 message2: '',
             };
 
@@ -322,7 +330,7 @@ exports.resetedPassword = function(user, password) {
             let detail = {
                 from: 'support@jezsel.nl', // sender address
                 to: user.email, // list of receivers
-                subject: 'Your JEZSEL Login Password Reseted', // Subject li
+                subject: 'JEZSEL Wachtwoord vergeten', // Subject li
                 html: htmlToSend
             }
 
@@ -341,7 +349,13 @@ exports.expireNotification = function(order) {
     let user = order.User
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
-        let comments = `Your Service(` + order.id + `) going to expire in 1 Hour`;
+        // let comments = `Your Service(` + order.id + `) going to expire in 1 Hour`;
+        let comments = `Wij willen u graag aan herinneren dat het laatste uur van de overeengekomen huurperiode is aangebroken. Wij verzoeken u vriendelijk om het voertuig op tijd op de afgesproken locatie terug te brengen.</p><p>
+        Graag maak ik u erop attent dat wanneer het gehuurde voertuig niet op tijd terug wordt gebracht €50,- euro per uur plus het huurtarief per uur naast de huursom zal worden gerekend.</p><p>
+        Heeft u het gehuurde voertuig langer nodig dan u dacht? Dit is geen enkel probleem. Zolang het voertuig beschikbaar is, kun u het voertuig wederom reserveren op de website via uw eigen account.</p><p>
+        Heeft u nog vragen naar aanleiding van dit bericht. Dan kunt u contact met ons opnemen.</p><p>
+        Bedankt voor het gebruik maken van de diensten van Jezsel en graag tot ziens.
+        `;
         var replacements = {
             username: user.firstname + ' ' + user.lastname,
             message: comments,
@@ -369,7 +383,7 @@ exports.expireNotification = function(order) {
 exports.cancelNotification = function(user, order) {
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
-        let comments = `Your Order was canceled.`;
+        let comments = `U heeft beroep gedaan op uw annuleringsverzekering.</p><p>Hierbij bevestigen wij dat uw annulering in goede orde is aangekomen.</p><p>Wij zien u graag terug bij Jezsel.`;
         var replacements = {
             username: user.firstname + ' ' + user.lastname,
             message: comments,
@@ -397,19 +411,20 @@ exports.cancelNotification = function(user, order) {
 exports.withdrawRequest = function(user, status) {
     readHTMLFile('./app/mail/email-temp.html', function(err, html) {
         var template = handlebars.compile(html);
-        let comments = `Your Withdrawal request was ${status}.`;
+        let comments = (status == 'Accepted') ? `U heeft een verzoek gedaan tot uitbetaling van uw wallet. Uw verzoek is goedgekeurd. Het bedrag zal binnen zeven werkdagen worden gestort op uw rekening.</p><p>Wij wensen u nog veel plezier met de diensten van Jezsel.` : `U heeft een verzoek gedaan tot uitbetaling van uw wallet. Uw verzoek is helaas afgekeurd. Binnen 3-5 werkdagen zal er contact met u worden opgenomen om de reden van afwijzing toe te lichten.</p><p>Mocht u nog vragen hebben naar aanleiding van dit bericht, verzoeken wij u vriendelijk om de vijf werkdagen te wachten en na de toelichting uw vraag te stellen. Op het moment dat u eerder contact opneemt, kunnen wij niet garanderen dat wij u verder kunnen helpen.</p><p>U kunt contact met ons opnemen per e-mail. Vergeet niet uw ordernummer te vermelden.`;
         var replacements = {
             username: user.firstname + ' ' + user.lastname,
             message: comments,
             message2: '',
         };
+        let subjectMdg = (status == 'Accepted') ? `JEZSEL Uitbetaling goedgekeurd` : `JEZSEL Uitbetaling afgekeurd`;
 
         var htmlToSend = template(replacements);
         // send mail with defined transport object
         let detail = {
             from: 'support@jezsel.nl', // sender address
             to: user.email, // list of receivers
-            subject: 'JEZSEL Withdrawal Status', // Subject lin
+            subject: subjectMdg, // Subject lin
             html: htmlToSend
         }
         transporter.sendMail(detail, function(error, info) {

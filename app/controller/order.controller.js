@@ -302,7 +302,7 @@ exports.products = function (req, res) {
 
                 let checkindatetimeex = search.checkindatetime.clone();
                 let checkoutdatetimeex = search.checkoutdatetime.clone();
-                search.checkindatetimeex = checkindatetimeex.format('YYYY-MM-DD HH:mm:ss');
+                search.checkindatetimeex = checkindatetimeex.add(10, 'seconds').format('YYYY-MM-DD HH:mm:ss');
                 search.checkoutdatetimeex = checkoutdatetimeex.format('YYYY-MM-DD HH:mm:ss');
                 userWhere[Op.or] = [{
                     checkindate: {
@@ -921,7 +921,6 @@ exports.makeOrder = function (req, res) {
 
                 // let maxCheckoutDate = orderhistory.checkoutdate;
                 orderhistory.maxcheckoutdateutc = search.maxcheckoutdateutc;
-                // orderhistory.maxcheckoutdateutc = moment(orderhistory.maxcheckoutdateutc).utc().format('YYYY-MM-DD') + ' ' + moment(orderhistory.maxcheckoutdateutc).utc().format('HH:mm:ss');
             }
             delete orderhistory.id;
             OrderHistoryModel.create(orderhistory).then((history) => {
@@ -983,7 +982,7 @@ exports.checkAvailability = function (req, res) {
 
     search.defaultcheckindatetimeex = checkindatetime.clone();
     search.defaultcheckoutdatetimeex = checkoutdatetime.clone();
-    search.defaultcheckindatetimeex = search.defaultcheckindatetimeex.format('YYYY-MM-DD HH:mm:ss');
+    search.defaultcheckindatetimeex = search.defaultcheckindatetimeex.add(10, 'seconds').format('YYYY-MM-DD HH:mm:ss');
     search.defaultcheckoutdatetimeex = search.defaultcheckoutdatetimeex.format('YYYY-MM-DD HH:mm:ss');
     where[Op.or] = [{
         checkindate: {
@@ -1503,7 +1502,7 @@ exports.findOrderExpireNotification = function (req, res) {
     });
 }
 
-exports.findOrderExpireNotificationTemp = function (req, res) {    
+exports.findOrderExpireNotificationTemp = function (req, res) {
     let where = {};
     where.maxcheckoutdateutc = {
         [Op.lt]: Sequelize.literal("DATE_ADD(NOW(), INTERVAL 1 HOUR)"),
