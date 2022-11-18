@@ -170,7 +170,7 @@ async function sendOrdConfirmation(order, type) {
         var template = handlebars.compile(html);
         let comments = `Bedankt voor uw bezoek aan Jezsel.nl. Wij hebben uw aanvraag in goede orde ontvangen. Uw ordernummer is ` + order.id + ".</p><p>" + `Heeft u nog vragen naar aanleiding van dit bericht. Dan kunt u contact met ons opnemen per e-mail. Vergeet niet uw ordernummer te vermelden.</p><p>Wij wensen u alvast een fijne ervaring met onze diensten.`;
         var replacements = {
-            username: user.firstname,
+            username: user.firstname + ' ' + user.lastname,
             message: comments,
             message2: '',
         };
@@ -245,7 +245,7 @@ async function main(user) {
         // let comments = `Click the following link to process the payment ${verifyUrl}`;
         let comments = `Bedankt voor uw bezoek aan onze website. U heeft ervoor gekozen om via een betalingslink te betalen. Via de onderstaande link kunt u betalen.</p><p>${verifyUrl}</p>Mocht u problemen ondervinden met de betalingslink, kunt u contact met ons opnemen.</p><p>Heeft u nog vragen naar aanleiding van dit bericht, kunt u ook contact met ons opnemen.`;
         var replacements = {
-            username: 'User',
+            username: user.firstname + ' ' + user.lastname,
             message: comments,
             message2: '',
         };
